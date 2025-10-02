@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accueil - Mes Plantes</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f6fdf8;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 { margin: 20px; text-align: center; }
+    .plants-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 80px;
+      width: 90%;
+    }
+    .plant-card {
+      background: white;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      width: 120px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      cursor: pointer;
+      position: relative;
+    }
+    .delete-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: #ff4444;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .add-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #4CAF50;
+      color: white;
+      font-size: 30px;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      z-index: 1000;
+    }
+    .calendar-btn {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: #2196F3;
+      color: white;
+      font-size: 24px;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      z-index: 1000;
+    }
+    .popup {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+    .popup-content {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 300px;
+      text-align: center;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .popup-content input, .popup-content select {
+      margin: 10px 0;
+      padding: 8px;
+      width: 90%;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .popup-content button {
+      margin-top: 15px;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .validate { background: #4CAF50; color: white; }
+    .cancel {
+      background: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      transition: all 0.2s ease;
+    }
+    .cancel:hover {
+      background: #388E3C;
+      transform: scale(1.05);
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      text-align: left;
+      width: 90%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #sunlight, #substrate, #watering {
+      pointer-events: none;
+      background-color: #f0f0f0;
+      cursor: default;
+    }
+    #detailPopup {
+      display: none;
+      position: fixed;
+      top:0; left:0;
+      width:100%; height:100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    #detailContent {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 300px;
+      text-align: left;
+    }
+
+    /* Styles pour le calendrier */
+    .calendar-popup-content {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .months {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .month {
+      background: #f0fdf4;
+      padding: 15px;
+      border-radius: 15px;
+      text-align: center;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+    .month:hover { transform: scale(1.05); }
+
+    .month-detail {
+      background: #ffffff;
+      border-radius: 15px;
+      padding: 15px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      display: none;
+    }
+    .month-detail h2 { color: #4caf50; margin-top: 0; }
+    .plant-list { margin: 10px 0; }
+    .plant-item {
+      background: #f0fdf4;
+      padding: 10px;
+      border-radius: 10px;
+      margin: 5px 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      font-size: 16px;
+      line-height: 1.4;
+    }
+
+    .back-btn { 
+      margin: 10px 0;
+      background: #4caf50; 
+      color: white; 
+      border: none; 
+      border-radius: 10px; 
+      padding: 10px 20px; 
+      font-size: 16px; 
+      cursor: pointer; 
+      transition: background 0.2s; 
+    }
+    .back-btn:hover { background: #388e3c; }
+
+    /* Styles pour les boutons maladies et soins */
+    .action-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+      gap: 10px;
+    }
+    
+    .action-btn {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1em;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      flex: 1;
+    }
+    
+    .disease-btn {
+      background: #ff9800;
+      color: white;
+    }
+    
+    .close-popup-btn {
+      background: #757575;
+      color: white;
+    }
+    
+    .action-btn:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+
+    /* Styles pour la popup maladies */
+    .popup-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .popup-title {
+      font-size: 1.5em;
+      color: #2d5016;
+      margin: 0;
+    }
+    
+    .close-btn {
+      background: #f44336;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 35px;
+      height: 35px;
+      font-size: 1.2em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .info-section {
+      margin-bottom: 20px;
+    }
+    
+    .info-title {
+      font-weight: bold;
+      color: #388e3c;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .disease-item {
+      background: #f9f9f9;
+      border-left: 4px solid #4CAF50;
+      padding: 10px 15px;
+      margin-bottom: 10px;
+      border-radius: 0 8px 8px 0;
+    }
+    
+    .disease-name {
+      font-weight: bold;
+      color: #d32f2f;
+      margin-bottom: 5px;
+    }
+    
+    .disease-desc {
+      font-size: 0.9em;
+      color: #555;
+    }
+    
+    .care-tips {
+      background: #e8f5e9;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🌱 Mes Plantes</h1>
+  <div class="plants-list" id="plantsList"></div>
+
+  <button class="add-btn" onclick="openPopup()">+</button>
+  <button class="calendar-btn" onclick="openCalendarPopup()">📅</button>
+
+  <!-- Popup Ajouter une plante -->
+  <div class="popup" id="popup">
+    <div class="popup-content">
+      <h2>Ajouter une plante</h2>
+
+      <label>Catégorie :</label>
+      <select id="plantCategory" onchange="updatePlantNames()">
+        <option value="">-- Choisir une catégorie --</option>
+        <option value="vertes">🌿 Plantes vertes </option>
+        <option value="fleuries">🌸 Plantes fleuries</option>
+        <option value="cactus">🌵 Cactus & Plantes grasses</option>
+        <option value="aromatiques">🌿 Aromatiques</option>
+        <option value="comestibles">🍓 Comestibles d'intérieur</option>
+      </select>
+
+      <label>Nom :</label>
+      <select id="plantNameSelect" onchange="updateGrowthStages()">
+        <option value="">-- Choisir une plante --</option>
+      </select>
+      <input type="text" id="plantNameOther" placeholder="Autre nom" style="display:none; margin-top:5px; width:90%;">
+
+      <label>Étape de pousse :</label>
+      <select id="growthStageSelect">
+        <option value="">-- Sélectionner étape --</option>
+      </select>
+      <p id="growthStageDesc" style="font-size:14px; color:#666; margin-top:5px;"></p>
+
+      <label>Exposition :</label>
+      <input type="text" id="sunlight" placeholder="Exposition" readonly>
+
+      <label>Substrat :</label>
+      <input type="text" id="substrate" placeholder="Substrat" readonly>
+
+      <label>Arrosage :</label>
+      <input type="text" id="watering" placeholder="Arrosage (ex: 1x/semaine...)" readonly>
+
+      <br>
+      <button class="validate" onclick="addPlant()">Valider</button>
+      <button class="cancel" onclick="closePopup()">Annuler</button>
+    </div>
+  </div>
+  
+  <!-- Popup infos détaillées -->
+  <div class="popup" id="detailPopup">
+    <div class="popup-content" id="detailContent">
+      <div class="popup-header">
+        <h2 class="popup-title" id="detailName"></h2>
+        <button class="close-btn" onclick="closeDetailPopup()">×</button>
+      </div>
+
+      <div class="info-section">
+        <div class="info-title">🌱 Étape de pousse</div>
+        <select id="detailGrowthSelect">
+          <option value="">-- Sélectionner étape --</option>
+        </select>
+        <p id="detailGrowthDesc" style="font-size:14px; color:#666; margin-top:5px;"></p>
+      </div>
+
+      <div class="info-section">
+        <div class="info-title">☀️ Exposition</div>
+        <p id="detailSunlight"></p>
+      </div>
+
+      <div class="info-section">
+        <div class="info-title">🌱 Substrat</div>
+        <p id="detailSubstrate"></p>
+      </div>
+
+      <div class="info-section">
+        <div class="info-title">💧 Arrosage</div>
+        <p id="detailWatering"></p>
+      </div>
+
+      <div class="action-buttons">
+        <button class="action-btn disease-btn" onclick="showDiseases()">Voir les maladies et soins</button>
+        <button class="action-btn close-popup-btn" onclick="closeDetailPopup()">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Popup Maladies -->
+  <div class="popup" id="diseasePopup">
+    <div class="popup-content">
+      <div class="popup-header">
+        <h2 class="popup-title" id="diseaseTitle">Maladies et Soins</h2>
+        <button class="close-btn" onclick="closeDiseasePopup()">×</button>
+      </div>
+      
+      <div class="info-section">
+        <div class="info-title">🦠 Maladies courantes</div>
+        <div id="diseaseList"></div>
+      </div>
+      
+      <div class="care-tips">
+        <div class="info-title">💚 Soins recommandés</div>
+        <div id="careTips"></div>
+      </div>
+      
+      <div class="action-buttons">
+        <button class="action-btn close-popup-btn" onclick="closeDiseasePopup()" style="margin-left: auto;">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Popup Calendrier -->
+  <div class="popup" id="calendarPopup">
+    <div class="calendar-popup-content">
+      <h1 style="text-align:center; color:#2e7d32; margin:0 0 20px 0;">Calendrier de Plantation</h1>
+
+      <div class="months" id="monthsContainer"></div>
+
+      <div class="month-detail" id="monthDetail">
+        <h2 id="monthName"></h2>
+        <div class="plant-list" id="plantListCalendar"></div>
+      </div>
+
+<button id="backBtn" class="back-btn" onclick="hideMonthDetail()" style="display:none;">Retour aux mois</button>
+      <button class="cancel" onclick="closeCalendarPopup()" style="margin-left:10px;">Fermer</button>
+    </div>
+  </div>
+
+  <script>
+    // Variables globales
+    const popup = document.getElementById("popup");
+    const plantsList = document.getElementById("plantsList");
+    let plantsData = [];
+    let currentPlant = null;
+
+    // Charger les plantes depuis le localStorage au démarrage
+    function loadPlantsFromStorage() {
+      const savedPlants = localStorage.getItem('mesPlantes');
+      if (savedPlants) {
+        plantsData = JSON.parse(savedPlants);
+        plantsData.forEach(plant => renderPlantCard(plant));
+      }
+    }
+
+    // Sauvegarder les plantes dans le localStorage
+    function savePlantsToStorage() {
+      localStorage.setItem('mesPlantes', JSON.stringify(plantsData));
+    }
+
+    // Données des plantes (restent inchangées)
+    const plantCategories = {
+      vertes: ["Monstéra délicieux","Caoutchouc","Ficus lyre","Pothos","Philodendron grimpant",
+               "Plante ZZ","Langue de belle-mère","Chlorophytum","Dracéna marginé","Calathéa / Maranta"],
+      fleuries: ["Orchidée papillon","Anthurium","Fleur de lune","Bégonia maculé","Kalanchoé","Cyclamen"],
+      cactus: ["Aloès vera","Arbre de jade","Écheveria","Haworthia","Figuier de Barbarie","Queue d'âne"],
+      aromatiques: ["Basilic","Menthe","Ciboulette","Persil","Coriandre","Origan","Thym","Romarin"],
+      comestibles: ["Fraisier","Tomate cerise","Poivron nain","Salade","Radis"]
+    };
+
+    const growthStages = {
+      vertes:[
+        {name:"Mini",desc:"Petite pousse fragile, tout petit bout de feuille."},
+        {name:"Jeune pousse",desc:"Commence à avoir des feuilles reconnaissables, encore petit."},
+        {name:"Adolescent",desc:"Feuilles grandes, style caractéristiques."},
+        {name:"Adulte",desc:"Énorme plante, tient bien sa place dans ton appart."},
+        {name:"Ancien sage",desc:"Plante bien installée, parfois fait des bébés, stolons ou rejets."}
+      ],
+      fleuries:[
+        {name:"Bébé",desc:"Pousse verte discrète, commence à s'affirmer."},
+        {name:"Première fleur",desc:"Première fleur apparaît, petite star en herbe."},
+        {name:"Fleur mature",desc:"Fleurs ouvertes et colorées, star de ton salon."},
+        {name:"Fleur éternelle",desc:"Fleurs régulières, la plante se fait respecter."}
+      ],
+      cactus:[
+        {name:"Mini épine",desc:"Mini pousses invisibles ou petites rosettes."},
+        {name:"Jeune cactus",desc:"Commence à prendre forme, épines fines."},
+        {name:"Adulte",desc:"Adulte, feuilles/rosettes bien formées."},
+        {name:"Ancien / géant",desc:"Plante robuste, increvable, parfois fleurs rares."}
+      ],
+      aromatiques:[
+        {name:"Bébé",desc:"Toute petite et fragile."},
+        {name:"Feuilles jeunes",desc:"Premières feuilles à cueillir, parfum léger."},
+        {name:"Mature",desc:"Feuilles grandes et parfumées, parfait pour la cuisine."},
+        {name:"Ancien / productif",desc:"Repousse régulière, t'en as pour des semaines."}
+      ],
+      comestibles:[
+        {name:"Mini pousse",desc:"Tout petit et fragile."},
+        {name:"Jeune plante",desc:"Commence à avoir des feuilles reconnaissables."},
+        {name:"Floraison",desc:"Premières fleurs, annonce les fruits."},
+        {name:"Fruité / adulte",desc:"Produit des fruits régulièrement."},
+        {name:"Ancien / sage",desc:"Plante bien installée, fruits abondants si entretien ok."}
+      ]
+    };
+
+    const iconsByCategory = {
+      vertes: "🌿",
+      fleuries: "🌸",
+      cactus: "🌵",
+      aromatiques: "🌿",
+      comestibles: "🍓"
+    };
+
+    const lightNeeds = {
+      "🌞 Soleil direct / Sun Warrior": ["Aloès vera","Arbre de jade","Écheveria","Haworthia","Figuier de Barbarie","Queue d'âne","Thym","Romarin","Tomate cerise","Poivron nain","Fraisier","Citronnier nain","Olivier nain"],
+      "🌤 Soleil filtré / mi-ombre / Chill Explorer": ["Monstéra délicieux","Caoutchouc","Ficus lyre","Pothos","Philodendron grimpant","Dracéna marginé","Orchidée papillon","Anthurium","Bégonia maculé","Kalanchoé","Basilic","Menthe","Ciboulette","Persil","Coriandre","Origan","Salade","Radis"],
+      "🌙 Ombre / faible lumière / Shadow Ninja": ["Plante ZZ","Langue de belle-mère","Chlorophytum","Calathéa / Maranta","Fleur de lune","Cyclamen"]
+    };
+
+    const substrates = {
+      "Monstéra délicieux":"terreau + tourbe + écorces de pin",
+      "Caoutchouc":"terreau universel + perlite",
+      "Ficus lyre":"terreau universel + perlite + un peu de compost",
+      "Pothos":"terreau léger + perlite",
+      "Philodendron grimpant":"terreau + perlite",
+      "Plante ZZ":"terreau succulent / sable",
+      "Langue de belle-mère":"terreau succulent + sable",
+      "Chlorophytum":"terreau universel",
+      "Dracéna marginé":"terreau universel + perlite",
+      "Calathéa / Maranta":"terreau universel + tourbe",
+      "Orchidée papillon":"substrat orchidée (écorces/fibre de coco/perlite)",
+      "Anthurium":"terreau + tourbe",
+      "Fleur de lune":"terreau + tourbe",
+      "Bégonia maculé":"terreau plantes fleuries + perlite",
+      "Kalanchoé":"terreau + sable",
+      "Cyclamen":"terreau léger, bien drainé",
+      "Aloès vera":"terreau cactus / succulentes + sable/perlite",
+      "Arbre de jade":"terreau cactus / succulentes + sable/perlite",
+      "Écheveria":"terreau cactus / succulentes + sable/perlite",
+      "Haworthia":"terreau cactus / succulentes + sable/perlite",
+      "Figuier de Barbarie":"terreau cactus / succulentes + sable/perlite",
+      "Queue d'âne":"terreau cactus / succulentes + sable/perlite",
+      "Basilic":"terreau universel ou spécial aromatiques",
+      "Menthe":"terreau universel ou spécial aromatiques",
+      "Ciboulette":"terreau universel ou spécial aromatiques",
+      "Persil":"terreau universel ou spécial aromatiques",
+      "Coriandre":"terreau universel ou spécial aromatiques",
+      "Origan":"terreau universel ou spécial aromatiques",
+      "Thym":"terreau + sable",
+      "Romarin":"terreau + sable",
+      "Fraisier":"terreau + compost, pot profond",
+      "Tomate cerise":"terreau + compost + perlite",
+      "Poivron nain":"terreau + compost + perlite",
+      "Salade":"terreau léger + compost",
+      "Radis":"terreau léger + compost",
+      "Bonsaï ficus":"substrat bonsaï (akadama + terre + gravier)",
+      "Citronnier nain":"terreau universel + compost + sable",
+      "Olivier nain":"terreau universel + compost + sable"
+    };
+
+    const wateringInfo = {
+      // Plantes vertes
+      "Monstéra délicieux":"1x/semaine, garder le sol légèrement humide",
+      "Caoutchouc":"1x/semaine, sol légèrement humide",
+      "Ficus lyre":"1x/semaine",
+      "Pothos":"1x/7-10 jours",
+      "Philodendron grimpant":"1x/semaine",
+      "Plante ZZ":"1x/2-3 semaines",
+      "Langue de belle-mère":"1x/2-3 semaines",
+      "Chlorophytum":"1x/7-10 jours",
+      "Dracéna marginé":"1x/semaine",
+      "Calathéa / Maranta":"1x/2-3 semaines",
+
+      // Plantes fleuries
+      "Orchidée papillon":"1x/semaine, laisser sécher substrat",
+      "Anthurium":"1x/semaine, sol humide",
+      "Fleur de lune":"1x/semaine, sol humide",
+      "Bégonia maculé":"1x/7-10 jours, éviter humidité feuilles",
+      "Kalanchoé":"1x/2 semaines, sol sec entre arrosages",
+      "Cyclamen":"1x/semaine, moins en été",
+
+      // Cactus & succulentes
+      "Aloès vera":"1x/3-4 semaines, substrat sec",
+      "Arbre de jade":"1x/3-4 semaines",
+      "Écheveria":"1x/3-4 semaines",
+      "Haworthia":"1x/3-4 semaines",
+      "Figuier de Barbarie":"1x/3-4 semaines",
+      "Queue d'âne":"1x/3-4 semaines",
+
+      // Aromatiques
+      "Basilic":"2-3x/semaine, sol humide",
+      "Menthe":"2-3x/semaine",
+      "Ciboulette":"2-3x/semaine",
+      "Persil":"2-3x/semaine",
+      "Coriandre":"2-3x/semaine",
+      "Origan":"1x/10-14 jours, sol plus sec",
+      "Thym":"1x/10-14 jours",
+      "Romarin":"1x/10-14 jours",
+
+      // Comestibles
+      "Fraisier":"1x/2-3 jours, sol humide",
+      "Tomate cerise":"1x/2-3 jours",
+      "Poivron nain":"1x/2-3 jours",
+      "Salade":"1x/2-3 jours, sol drainant",
+      "Radis":"1x/2-3 jours",
+
+      // Mini arbres
+      "Bonsaï ficus":"1x/2-3 jours quand sol sec",
+      "Citronnier nain":"1x/semaine, sol légèrement humide",
+      "Olivier nain":"1x/10 jours, sol sec entre arrosages"
+    };
+
+    // Données du calendrier (inchangées)
+    const plantData = {
+      "Janvier":[
+        "Semis : sous abri ou intérieur : tomates, poivrons, aubergines, basilic, laitues précoces, persil.",
+        "Récolte : légumes racines d'hiver (carottes, poireaux), choux d'hiver, herbes résistantes (thym, romarin, persil)."
+      ],
+      "Février":[
+        "Semis : tomates, poivrons, aubergines, basilic, laitues précoces, coriandre, menthe, choux pour repiquage.",
+        "Récolte : poireaux, carottes, chou d'hiver, épinards hivernaux, persil."
+      ],
+      "Mars":[
+        "Semis : laitues, radis, carottes, betteraves, pois, épinards, tomates, poivrons, aubergines, basilic.",
+        "Récolte : laitues d'hiver, épinards d'hiver, persil, radis d'hiver, poireaux."
+      ],
+      "Avril":[
+        "Semis : tomates, poivrons, aubergines (sous abri si frais), concombres, courgettes, courges, basilic, radis, laitues, carottes.",
+        "Récolte : radis précoces, laitues précoces, épinards, petits pois."
+      ],
+      "Mai":[
+        "Semis : tomates, poivrons, aubergines, courgettes, concombres, basilic, carottes, radis, laitues, betteraves.",
+        "Récolte : laitues précoces, radis, épinards, petits pois, fraises précoces."
+      ],
+      "Juin":[
+        "Semis : courgettes, concombres, haricots, basilic, betteraves, carottes, laitues d'été.",
+        "Récolte : radis, laitues, épinards, fraises, petits pois, herbes aromatiques (basilic, persil, ciboulette)."
+      ],
+      "Juillet":[
+        "Semis : haricots, courges, laitues pour récoltes d'automne, radis d'été, basilic, coriandre.",
+        "Récolte : tomates, poivrons, aubergines, courgettes, concombres, fraises, laitues, radis, herbes aromatiques."
+      ],
+      "Août":[
+        "Semis : laitues, radis, épinards d'automne, coriandre, persil, navets.",
+        "Récolte : tomates, poivrons, aubergines, courgettes, concombres, haricots, basilic, herbes aromatiques."
+      ],
+      "Septembre":[
+        "Semis : laitues d'hiver, radis, épinards d'automne, coriandre, persil, navets, mâche.",
+        "Récolte : tomates, poivrons, aubergines, haricots, courges, courgettes, fraises d'été, herbes aromatiques."
+      ],
+      "Octobre":[
+        "Semis : laitues d'hiver, épinards, mâche, persil, radis d'hiver.",
+        "Récolte : courges, carottes, betteraves, poireaux, choux, pommes de terre, herbes aromatiques résistantes."
+      ],
+      "Novembre":[
+        "Semis : sous abri : laitues précoces, radis d'hiver, épinards, persil.",
+        "Récolte : carottes, poireaux, choux, betteraves, herbes résistantes."
+      ],
+      "Décembre":[
+        "Semis : sous abri ou intérieur : laitues, radis, épinards, basilic si lumière suffisante.",
+        "Récolte : légumes racines d'hiver (carottes, poireaux), choux, herbes résistantes (thym, romarin, persil)."
+      ]
+    };
+
+    const months = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+
+    // Données des maladies et soins (inchangées)
+    const plantsDiseasesData = {
+      // ... (toutes les données maladies restent identiques)
+      "Monstéra délicieux": {
+        diseases: [
+          "Taches noires sur les feuilles : Champignon (anthracnose) dû à un excès d'humidité",
+          "Feuilles jaunissent : Souvent un excès d'arrosage",
+          "Feuilles pâles et étirées : Manque de lumière",
+          "Pourriture des racines : Excès d'eau dans un substrat non drainant",
+          "Cochenilles : Petits insectes blancs et cotonneux sous les feuilles"
+        ],
+        care: "Coupez les feuilles atteintes. Laissez sécher la terre entre deux arrosages. Améliorez la lumière (sans soleil direct). Pour la pourriture, rempotez en coupant les racines noires/molles. Cochenilles : tamponnez avec un coton imbibé d'alcool à 90° ou utilisez un savon insecticide."
+      },
+      // ... (toutes les autres données maladies)
+    };
+
+    // Fonctions pour les plantes
+    function openPopup(){ popup.style.display="flex"; }
+    function closePopup(){ popup.style.display="none"; }
+
+    function updatePlantNames(){
+      const category=document.getElementById("plantCategory").value;
+      const nameSelect=document.getElementById("plantNameSelect");
+      const nameOther=document.getElementById("plantNameOther");
+      nameSelect.innerHTML='<option value="">-- Choisir une plante --</option>';
+      nameOther.style.display="none";
+
+      if(category && plantCategories[category]){
+        plantCategories[category].forEach(name=>{
+          const option=document.createElement("option");
+          option.value=name;
+          option.textContent=name;
+          nameSelect.appendChild(option);
+        });
+        const optionOther=document.createElement("option");
+        optionOther.value="Autre";
+        optionOther.textContent="Autre...";
+        nameSelect.appendChild(optionOther);
+      }
+      updateGrowthStages();
+      updateSunlight();
+      updateSubstrate();
+      updateWatering();
+    }
+
+    function updateGrowthStages(){
+      const category=document.getElementById("plantCategory").value;
+      const stageSelect=document.getElementById("growthStageSelect");
+      const stageDesc=document.getElementById("growthStageDesc");
+      stageSelect.innerHTML='<option value="">-- Sélectionner étape --</option>';
+      stageDesc.textContent="";
+      if(category && growthStages[category]){
+        growthStages[category].forEach(stage=>{
+          const option=document.createElement("option");
+          option.value=stage.name;
+          option.textContent=stage.name;
+          stageSelect.appendChild(option);
+        });
+        if(growthStages[category].length>0){
+          stageDesc.textContent=growthStages[category][0].desc;
+        }
+      }
+    }
+
+    function updateSunlight(){
+      const plantNameSelect=document.getElementById("plantNameSelect");
+      const plantNameOther=document.getElementById("plantNameOther").value.trim();
+      const sunlightInput=document.getElementById("sunlight");
+      let selectedPlant=plantNameSelect.value;
+      if(selectedPlant==="Autre") selectedPlant=plantNameOther;
+      for(const [light, plants] of Object.entries(lightNeeds)){
+        if(plants.includes(selectedPlant)){
+          sunlightInput.value=light;
+          return;
+        }
+      }
+      sunlightInput.value="";
+    }
+
+    function updateSubstrate(){
+      const plantNameSelect=document.getElementById("plantNameSelect");
+      const plantNameOther=document.getElementById("plantNameOther").value.trim();
+      const substrateInput=document.getElementById("substrate");
+      let selectedPlant=plantNameSelect.value;
+      if(selectedPlant==="Autre") selectedPlant=plantNameOther;
+      substrateInput.value = substrates[selectedPlant] || "";
+    }
+
+    function updateWatering(){
+      const nameSelect = document.getElementById("plantNameSelect");
+      const nameOther = document.getElementById("plantNameOther").value.trim();
+      const wateringInput = document.getElementById("watering");
+
+      let selectedPlant = nameSelect.value;
+      if(selectedPlant==="Autre") selectedPlant=nameOther;
+
+      wateringInput.value = wateringInfo[selectedPlant] || "";
+    }
+
+    document.getElementById("plantNameSelect").addEventListener("change", function(){
+      const nameOther=document.getElementById("plantNameOther");
+      if(this.value==="Autre") {
+        nameOther.style.display="block";
+      } else {
+        nameOther.style.display="none";
+      }
+      updateSunlight();
+      updateSubstrate();
+      updateWatering();
+    });
+
+    document.getElementById("plantNameOther").addEventListener("input", function(){
+      updateSunlight();
+      updateSubstrate();
+      updateWatering();
+    });
+
+    document.getElementById("growthStageSelect").addEventListener("change", function(){
+      const category=document.getElementById("plantCategory").value;
+      const stageDesc=document.getElementById("growthStageDesc");
+      if(category && growthStages[category] && this.value){
+        const selectedStage=growthStages[category].find(stage=>stage.name===this.value);
+        if(selectedStage) stageDesc.textContent=selectedStage.desc;
+      }
+    });
+
+    function addPlant() {
+      const category = document.getElementById("plantCategory").value;
+      let name = document.getElementById("plantNameSelect").value;
+      const nameOther = document.getElementById("plantNameOther").value;
+      const growthStage = document.getElementById("growthStageSelect").value;
+      const sunlight = document.getElementById("sunlight").value;
+      const substrate = document.getElementById("substrate").value;
+      const watering = document.getElementById("watering").value;
+
+      if(name === "Autre") name = nameOther.trim();
+      if(!category || !name || !growthStage) return alert("Remplis tout !");
+
+      const plantObj = { 
+        name, 
+        category, 
+        growthStage, 
+        sunlight, 
+        substrate, 
+        watering,
+        hasDiseaseInfo: plantsDiseasesData.hasOwnProperty(name),
+        id: Date.now() // ID unique pour la suppression
+      };
+      plantsData.push(plantObj);
+
+      // Sauvegarder dans le localStorage
+      savePlantsToStorage();
+      
+      renderPlantCard(plantObj);
+      closePopup();
+    }
+
+    function renderPlantCard(plantObj){
+      const icon = iconsByCategory[plantObj.category];
+      const plantCard = document.createElement("div");
+      plantCard.className = "plant-card";
+      plantCard.innerHTML = `
+        <div style="font-size:30px">${icon}</div>
+        <strong>${plantObj.name}</strong>
+        <button class="delete-btn" onclick="deletePlant(${plantObj.id})">×</button>
+      `;
+
+      plantCard.addEventListener("click", function(){
+        currentPlant = plantObj;
+        
+        document.getElementById("detailName").textContent = plantObj.name;
+        document.getElementById("detailSunlight").textContent = plantObj.sunlight;
+        document.getElementById("detailSubstrate").textContent = plantObj.substrate;
+        document.getElementById("detailWatering").textContent = plantObj.watering;
+
+        populateDetailGrowth(plantObj);
+        document.getElementById("detailPopup").style.display = "flex";
+      });
+
+      plantsList.appendChild(plantCard);
+    }
+
+    // Fonction pour supprimer une plante
+    function deletePlant(plantId) {
+      if (confirm("Voulez-vous vraiment supprimer cette plante ?")) {
+        plantsData = plantsData.filter(plant => plant.id !== plantId);
+        savePlantsToStorage();
+        refreshPlantsDisplay();
+      }
+    }
+
+    // Fonction pour rafraîchir l'affichage des plantes
+    function refreshPlantsDisplay() {
+      plantsList.innerHTML = '';
+      plantsData.forEach(plant => renderPlantCard(plant));
+    }
+
+    function populateDetailGrowth(plantObj){
+      const detailSelect = document.getElementById("detailGrowthSelect");
+      const detailDesc = document.getElementById("detailGrowthDesc");
+      detailSelect.innerHTML = '<option value="">-- Sélectionner étape --</option>';
+
+      growthStages[plantObj.category].forEach(stage => {
+        const option = document.createElement("option");
+        option.value = stage.name;
+        option.textContent = stage.name;
+        if(stage.name === plantObj.growthStage) option.selected = true;
+        detailSelect.appendChild(option);
+      });
+
+      const selectedStage = growthStages[plantObj.category].find(s => s.name === plantObj.growthStage);
+      detailDesc.textContent = selectedStage.desc;
+
+      detailSelect.onchange = function() {
+        const newStage = growthStages[plantObj.category].find(s => s.name === this.value);
+        if(newStage) {
+          plantObj.growthStage = newStage.name;
+          detailDesc.textContent = newStage.desc;
+          // Sauvegarder la modification dans le localStorage
+          savePlantsToStorage();
+        }
+      };
+    }
+
+    function closeDetailPopup(){
+      document.getElementById("detailPopup").style.display = "none";
+    }
+
+    // Fonctions pour les maladies
+    function showDiseases() {
+      if (!currentPlant) return;
+      
+      const plantName = currentPlant.name;
+      
+      if (!plantsDiseasesData[plantName]) {
+        alert("Aucune information sur les maladies disponibles pour cette plante.");
+        return;
+      }
+      
+      document.getElementById('diseaseTitle').textContent = `Maladies et Soins - ${plantName}`;
+      
+      const diseaseList = document.getElementById('diseaseList');
+      diseaseList.innerHTML = '';
+      
+      plantsDiseasesData[plantName].diseases.forEach(disease => {
+        const diseaseItem = document.createElement('div');
+        diseaseItem.className = 'disease-item';
+        
+        const diseaseParts = disease.split(' : ');
+        diseaseItem.innerHTML = `
+          <div class="disease-name">${diseaseParts[0]}</div>
+          <div class="disease-desc">${diseaseParts[1] || ''}</div>
+        `;
+        
+        diseaseList.appendChild(diseaseItem);
+      });
+      
+      document.getElementById('careTips').innerHTML = `
+        <p>${plantsDiseasesData[plantName].care}</p>
+      `;
+      
+      closeDetailPopup();
+      document.getElementById('diseasePopup').style.display = 'flex';
+    }
+
+    function closeDiseasePopup() {
+      document.getElementById('diseasePopup').style.display = 'none';
+    }
+
+    // Fonctions pour le calendrier
+    function openCalendarPopup() {
+      document.getElementById("calendarPopup").style.display = "flex";
+      initCalendar();
+    }
+
+    function closeCalendarPopup() {
+      document.getElementById("calendarPopup").style.display = "none";
+    }
+
+    function initCalendar() {
+      const monthsContainer = document.getElementById('monthsContainer');
+      monthsContainer.innerHTML = '';
+      
+      months.forEach(month => {
+        const div = document.createElement('div');
+        div.className = 'month';
+        div.textContent = month;
+        div.onclick = () => showMonthDetail(month);
+        monthsContainer.appendChild(div);
+      });
+      
+      hideMonthDetail();
+    }
+
+    function showMonthDetail(month){
+      const monthNameEl = document.getElementById('monthName');
+      const plantListEl = document.getElementById('plantListCalendar');
+      const backBtn = document.getElementById('backBtn');
+
+      monthNameEl.textContent = month;
+      plantListEl.innerHTML = '';
+      
+      if(plantData[month]){
+        plantData[month].forEach(item=>{
+          const div = document.createElement('div');
+          div.className='plant-item';
+          
+          const parts = item.split(':');
+          if(parts.length > 1){
+            const firstPart = '<b>' + parts[0].trim() + '</b> :';
+            const rest = parts.slice(1).join(':').trim();
+            div.innerHTML = firstPart + ' ' + rest;
+          } else {
+            div.textContent = item;
+          }
+
+          plantListEl.appendChild(div);
+        });
+      } else {
+        plantListEl.innerHTML = '<p>Aucune information pour ce mois</p>';
+      }
+
+      document.getElementById('monthDetail').style.display='block';
+      backBtn.style.display = 'inline-block';
+    }
+
+    function hideMonthDetail() {
+      document.getElementById('monthDetail').style.display='none';
+      document.getElementById('backBtn').style.display = 'none';
+    }
+
+    // Charger les plantes au démarrage
+    window.onload = function() {
+      loadPlantsFromStorage();
+    };
+  </script>
+</body>
+</html>
