@@ -33,22 +33,6 @@
       cursor: pointer;
       position: relative;
     }
-    .delete-btn {
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      background: #ff4444;
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 20px;
-      height: 20px;
-      font-size: 12px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
     .add-btn {
       position: fixed;
       bottom: 20px;
@@ -249,6 +233,11 @@
       background: #757575;
       color: white;
     }
+
+    .delete-btn {
+      background: #ff4444;
+      color: white;
+    }
     
     .action-btn:hover {
       opacity: 0.9;
@@ -407,6 +396,7 @@
 
       <div class="action-buttons">
         <button class="action-btn disease-btn" onclick="showDiseases()">Voir les maladies et soins</button>
+        <button class="action-btn delete-btn" onclick="deleteCurrentPlant()">Supprimer</button>
         <button class="action-btn close-popup-btn" onclick="closeDetailPopup()">Fermer</button>
       </div>
     </div>
@@ -844,7 +834,6 @@
       plantCard.innerHTML = `
         <div style="font-size:30px">${icon}</div>
         <strong>${plantObj.name}</strong>
-        <button class="delete-btn" onclick="deletePlant(${plantObj.id})">×</button>
       `;
 
       plantCard.addEventListener("click", function(){
@@ -862,12 +851,13 @@
       plantsList.appendChild(plantCard);
     }
 
-    // Fonction pour supprimer une plante
-    function deletePlant(plantId) {
-      if (confirm("Voulez-vous vraiment supprimer cette plante ?")) {
-        plantsData = plantsData.filter(plant => plant.id !== plantId);
+    // Fonction pour supprimer la plante courante depuis le pop-up
+    function deleteCurrentPlant() {
+      if (currentPlant && confirm("Voulez-vous vraiment supprimer cette plante ?")) {
+        plantsData = plantsData.filter(plant => plant.id !== currentPlant.id);
         savePlantsToStorage();
         refreshPlantsDisplay();
+        closeDetailPopup();
       }
     }
 
